@@ -16,7 +16,7 @@ char *buff = malloc(buffsize);
 		return (NULL);
 	}
 
-	for (i = 0; c != EOF && c != '\n'; i++)
+	for (i = 0; c >= EOF && c != '\n'; i++)
 	{
 		fflush(stdin);
 		rd = read(STDIN_FILENO, &c, 1);
