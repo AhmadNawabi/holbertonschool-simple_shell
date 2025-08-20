@@ -1,10 +1,16 @@
 #include "main.h"
 
 /**
- * exec_line - finds builtins and commands
+ * exec_line - Finds and executes builtins or external commands
+ * @datash: Pointer to the data_shell structure containing args
  *
- * @datash: data relevant (args)
- * Return: 1 on success.
+ * Description:
+ * This function checks if the first argument entered
+ * by the user matches a builtin command. If so, it
+ * executes the builtin. Otherwise, it calls cmd_exec()
+ * to execute the command as an external program.
+ *
+ * Return: 1 on success or continuation of shell loop.
  */
 int exec_line(data_shell *datash)
 {
