@@ -1,10 +1,16 @@
 #include "main.h"
 
 /**
- * without_comment - deletes comments from the input
+ * without_comment - Removes comments (#) from input string
+ * @in: Input string to process
  *
- * @in: input string
- * Return: input without comments
+ * Description:
+ * Iterates through the input string and removes any part
+ * starting with the '#' character if it is at the beginning
+ * or follows a space, tab, or semicolon.
+ *
+ * Return: Pointer to modified input string.
+ *         NULL if the whole line is a comment.
  */
 char *without_comment(char *in)
 {
@@ -21,14 +27,20 @@ char *without_comment(char *in)
 				return (NULL);
 			}
 
-			if (in[i - 1] == ' ' || in[i - 1] == '\t' || in[i - 1] == ';')
+			if (in[i - 1] == ' ' || in[i - 1] == '\t' ||
+			    in[i - 1] == ';')
+			{
 				up_to = i;
+			}
 		}
 	}
 
 	if (up_to != 0)
 	{
 		in = _realloc(in, i, up_to + 1);
+		if (in == NULL)
+			return (NULL);
+
 		in[up_to] = '\0';
 	}
 
@@ -36,10 +48,16 @@ char *without_comment(char *in)
 }
 
 /**
- * shell_loop - Loop of shell
- * @datash: data relevant (av, input, args)
+ * shell_loop - Main loop of the simple shell
+ * @datash: Pointer to the data_shell structure containing
+ *          arguments, input, and status information
  *
- * Return: no return.
+ * Description:
+ * Displays the prompt, reads user input, processes syntax,
+ * replaces variables, and executes commands until the user
+ * exits or EOF is encountered.
+ *
+ * Return: Nothing
  */
 void shell_loop(data_shell *datash)
 {
@@ -49,29 +67,30 @@ void shell_loop(data_shell *datash)
 	loop = 1;
 	while (loop == 1)
 	{
-		write(STDIN_FILENO, "^-^ ", 4);
+		write(STDOUT_FILENO, "^-^ ", 4);
 		input = read_line(&i_eof);
-		if (i_eof != -1)
-		{
-			input = without_comment(input);
-			if (input == NULL)
-				continue;
 
-			if (check_syntax_error(datash, input) == 1)
-			{
-				datash->status = 2;
-				free(input);
-				continue;
-			}
-			input = rep_var(input, datash);
-			loop = split_commands(datash, input);
-			datash->counter += 1;
-			free(input);
-		}
-		else
+		if (i_eof == -1)
 		{
 			loop = 0;
 			free(input);
+			break;
 		}
+
+		input = without_comment(input);
+		if (input == NULL)
+			continue;
+
+		if (check_syntax_error(datash, input) == 1)
+		{
+			datash->status = 2;
+			free(input);
+			continue;
+		}
+
+		input = rep_var(input, datash);
+		loop = split_commands(datash, input);
+		datash->counter += 1;
+		free(input);
 	}
 }
